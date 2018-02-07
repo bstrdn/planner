@@ -6,19 +6,44 @@
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="67dp"
+        android:layout_width="20dp"
         android:layout_height="43dp"
         android:layout_marginLeft="4px"
         android:layout_marginRight="10px"
         android:layout_marginTop="4px"
+        android:layout_weight="1"
         android:src="@drawable/ic_launcher_foreground"></ImageView>
 
-    <TextView
-        android:id="@+id/label"
-        android:layout_width="210dp"
-        android:layout_height="wrap_content"
-        android:text="@+id/label"
-        android:textSize="24sp"
-        tools:text="ffgf"></TextView>
+    <TableLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/text1"
+                android:layout_width="267dp"
+                android:layout_height="wrap_content"
+                android:text="@+id/text1"
+                android:textSize="24sp"
+                tools:text="ffgf"></TextView>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/text2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="TextView" />
+
+        </TableRow>
+
+    </TableLayout>
 
 </LinearLayout>

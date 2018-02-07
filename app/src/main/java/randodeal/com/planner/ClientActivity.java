@@ -59,8 +59,9 @@ public class ClientActivity extends Activity implements View.OnClickListener {
 
 
  //       adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, android.R.id.text1, listItems);
-        SimpleAdapter  adapter = new SimpleAdapter(this, arrayList, android.R.layout.simple_list_item_2, new String[]{"Name","Phone"},
-                new int[]{android.R.id.text1, android.R.id.text2});
+        SimpleAdapter  adapter = new SimpleAdapter(this, arrayList,
+                R.layout.my_item, new String[]{"Name","Phone"},
+                new int[]{R.id.text1, R.id.text2});
         lv1.setAdapter(adapter);
 
       //  adapter.setNotifyOnChange(true);
