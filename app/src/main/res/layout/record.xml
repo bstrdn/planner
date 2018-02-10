@@ -6,6 +6,35 @@
     android:layout_height="match_parent"
     tools:context="randodeal.com.planner.RecordActivity">
 
+    <Button
+        android:id="@+id/btnNewRecord"
+        android:layout_width="248dp"
+        android:layout_height="39dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:onClick="setDate"
+        android:text="@string/newRecord"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editText" />
+
+    <TextView
+        android:id="@+id/currentDateTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Записаны на сегодня"
+        app:layout_constraintTop_toBottomOf="@+id/btnNewRecord"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <ListView
+        android:id="@+id/lvRecord"
+        android:layout_width="362dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+        app:layout_constraintTop_toBottomOf="@+id/currentDateTime"
+        tools:layout_editor_absoluteX="11dp" />
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="0dp"
@@ -48,4 +77,14 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        tools:layout_editor_absoluteX="27dp"
+        tools:layout_editor_absoluteY="0dp" />
+
 </android.support.constraint.ConstraintLayout>

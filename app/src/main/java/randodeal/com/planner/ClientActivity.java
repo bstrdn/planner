@@ -53,8 +53,7 @@ public class ClientActivity extends Activity implements View.OnClickListener {
 
         lv1 = (ListView) findViewById(R.id.lv1);
 
-        listItems = new ArrayList<String>();
-
+     //   listItems = new ArrayList<String>();
         arrayList = new ArrayList<>();
 
 
@@ -64,59 +63,27 @@ public class ClientActivity extends Activity implements View.OnClickListener {
                 new int[]{R.id.text1, R.id.text2});
         lv1.setAdapter(adapter);
 
-      //  adapter.setNotifyOnChange(true);
 
-        // создаем объект для создания и управления версиями БД
+        // создаем объект для создания и управления версиями БД / подключаемся к БД
         dbHelper = new DBHelper(this);
-        // подключаемся к БД
         db = dbHelper.getWritableDatabase();
 
-
-
-
-
-
-        Log.d(LOG_TAG, "--- Rows in mytable: ---");
-        // делаем запрос всех данных из таблицы mytable, получаем Cursor
-        Cursor c = db.query("client", null, null, null, null, null, null);
-        // ставим позицию курсора на первую строку выборки
-        // если в выборке нет строк, вернется false
-        if (c.moveToFirst()) {
-            // определяем номера столбцов по имени в выборке
+        Cursor c = db.query("client", null, null, null, null, null, null); // делаем запрос всех данных из таблицы mytable, получаем Cursor
+        // ставим позицию курсора на первую строку выборки  // если в выборке нет строк, вернется false
+        if (c.moveToFirst()) { // определяем номера столбцов по имени в выборке
             int idColIndex = c.getColumnIndex("idClient");
             int nameColIndex = c.getColumnIndex("name");
             int phoneColIndex = c.getColumnIndex("phone");
-
             do {
-                // получаем значения по номерам столбцов и пишем все в лог
-                Log.d(LOG_TAG,
-                        "idClient = " + c.getInt(idColIndex) +
-                                ", name = " + c.getString(nameColIndex) +
-                                ", phone = " + c.getString(phoneColIndex));
-
-
-
-
                 map = new HashMap<>();
                 map.put("Name", c.getString(nameColIndex));
                 map.put("Phone", c.getString(phoneColIndex));
                 arrayList.add(map);
-                //adapter.add("Клиент " + c.getString(nameColIndex));
-                // переход на следующую строку
-                // а если следующей нет (текущая - последняя), то false - выходим из цикла
+                // переход на следующую строку  // а если следующей нет (текущая - последняя), то false - выходим из цикла
             } while (c.moveToNext());
         } else
             Log.d(LOG_TAG, "0 rows");
         c.close();
-
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-//                android.R.layout.simple_list_item_1, names);
-//        // присваиваем адаптер списку
-//        lv1.setAdapter(adapter);
-
-
-
-
 
 
 

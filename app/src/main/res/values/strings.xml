@@ -3,4 +3,5 @@
     <string name="btn1">Клиенты</string>
     <string name="btn2">Запись</string>
     <string name="btn3">Отчет</string>
+    <string name="newRecord">Новая запись</string>
 </resources>
