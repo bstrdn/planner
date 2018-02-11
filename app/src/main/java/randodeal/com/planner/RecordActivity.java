@@ -1,8 +1,10 @@
 package randodeal.com.planner;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -12,18 +14,23 @@ import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
-public class RecordActivity extends AppCompatActivity implements View.OnClickListener {
+public class RecordActivity extends Activity implements View.OnClickListener {
     Button btn1,btn2,btn3;
     Button btnNewRecord;
     TextView currentDateTime;
@@ -32,6 +39,13 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
     DBHelper dbHelper;    SQLiteDatabase db;
     HashMap<String, String> map;
     ArrayList<HashMap<String, String>> arrayList;
+    List<String> catList;
+    ArrayAdapter adapter;
+    ArrayAdapter adapter2;
+    AutoCompleteTextView autoCompleteTextView;
+    Cursor c;
+    DatePickerDialog datePickerDialog;
+    TimePickerDialog timePickerDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +64,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
         currentDateTime = (TextView) findViewById(R.id.currentDateTime);
         arrayList = new ArrayList<>();
         setInitialDateTime();
+        catList = new ArrayList<>();
 
 
 
@@ -57,34 +72,81 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
         dbHelper = new DBHelper(this);
         db = dbHelper.getWritableDatabase();
 
-        SimpleAdapter adapter = new SimpleAdapter(this, arrayList,
-                R.layout.my_item, new String[]{"Id","Date"},
-                new int[]{R.id.text1, R.id.text2});
-        lvRecord.setAdapter(adapter);
 
-        Cursor c = db.query("record", null, null, null, null, null, null); // делаем запрос всех данных из таблицы mytable, получаем Cursor
+        lvRecord ();
+
+
+        //выпадающий список пациентов
+        autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
+        adapter2 = new ArrayAdapter(
+                this, android.R.layout.simple_dropdown_item_1line, catList);
+        autoCompleteTextView.setAdapter(adapter2);
+        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                Toast.makeText(RecordActivity.this,
+                        adapter2.getItem(position).toString(),
+                        Toast.LENGTH_SHORT).show();
+                String[] at4 = {adapter2.getItem(position).toString()};
+                Cursor c = null;
+                String[] argsName = {adapter2.getItem(position).toString()};
+                c = db.query("client", null,"name = ?", argsName, null, null,null );
+                c.moveToFirst();
+                int idClient = c.getColumnIndex("idClient");
+                System.out.println(c.getString(idClient));
+            }
+        });
+
+
+
+
+
+
+
+
+
+    }
+
+    private void lvRecord() {
+
+
+        //получаем список записей
+        c = db.query("record", null, null, null, null, null, null); // делаем запрос всех данных из таблицы mytable, получаем Cursor
         // ставим позицию курсора на первую строку выборки  // если в выборке нет строк, вернется false
         if (c.moveToFirst()) { // определяем номера столбцов по имени в выборке
             int idColIndex = c.getColumnIndex("idClient");
             int dateColIndex = c.getColumnIndex("dateVisit");
-          //  int phoneColIndex = c.getColumnIndex("cost");
+            //  int phoneColIndex = c.getColumnIndex("cost");
             do {
                 map = new HashMap<>();
                 map.put("Id", c.getString(idColIndex));
                 map.put("Date", c.getString(dateColIndex));
-             //   map.put("Phone", c.getString(phoneColIndex));
+                //   map.put("Phone", c.getString(phoneColIndex));
                 arrayList.add(map);
                 // переход на следующую строку  // а если следующей нет (текущая - последняя), то false - выходим из цикла
             } while (c.moveToNext());
         } else
             Log.d("LOG_TAG", "0 rows");
         c.close();
+//        dbHelper = new DBHelper(this);
+//        db = dbHelper.getWritableDatabase();
 
+        SimpleAdapter adapter = new SimpleAdapter(this, arrayList,
+                R.layout.my_item, new String[]{"Id","Date"},
+                new int[]{R.id.text1, R.id.text2});
+        lvRecord.setAdapter(adapter);
 
-
-
-
-
+        ///получаем список клиентов
+        c = db.query("client", null, null, null, null, null, null);
+        if (c.moveToFirst()) {
+            int idClient = c.getColumnIndex("name");
+            do {
+                catList.add(c.getString(idClient));
+            } while (c.moveToNext());
+        } else
+            Log.d("ошибка", "0 rows");
+        c.close();
     }
 
     @Override
@@ -113,31 +175,63 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+
+    //устанавливаем дату
     public void setDate(View v) {
-
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,d,
+        datePickerDialog = new DatePickerDialog(this,d,
                 dateAndTime.get(Calendar.YEAR),
                 dateAndTime.get(Calendar.MONTH),
                 dateAndTime.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             public void onDismiss(DialogInterface dialog) {
-                new TimePickerDialog(RecordActivity.this, t,
-                        dateAndTime.get(Calendar.HOUR_OF_DAY),
-                        dateAndTime.get(Calendar.MINUTE), true)
-                        .show();
-            }});
-    datePickerDialog.show();}
+                setTime();
+            }
+
+        });
+            datePickerDialog.show();
+    }
 
 
 
     // отображаем диалоговое окно для выбора времени
-    public void setTime(View v) {
-        new TimePickerDialog(RecordActivity.this, t,
+    public void setTime() {
+        timePickerDialog = new TimePickerDialog(RecordActivity.this, t,
                 dateAndTime.get(Calendar.HOUR_OF_DAY),
-                dateAndTime.get(Calendar.MINUTE), true)
-                .show();
+                dateAndTime.get(Calendar.MINUTE), true);
+        timePickerDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            public void onDismiss(DialogInterface dialog) {
+//!!!СОХРАНЕНИЕ В БАЗЕ
+                ContentValues cv = new ContentValues();
+                String name = autoCompleteTextView.getText().toString();
+                String date = currentDateTime.getText().toString();
+//                String more = etMore.getText().toString();
+                cv.put("idClient", name);
+                cv.put("dateVisit", date);
+//                cv.put("more", more);
+                db.insert("record", null, cv);
+
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        name + " добавлен!", Toast.LENGTH_SHORT);
+                toast.show();
+
+                arrayList.clear();
+               lvRecord();
+
+
+
+            }
+        });
+        timePickerDialog.show();
+
+//        new TimePickerDialog(RecordActivity.this, t,
+//                dateAndTime.get(Calendar.HOUR_OF_DAY),
+//                dateAndTime.get(Calendar.MINUTE), true)
+//                .show();
+
     }
+
+
+
     // установка начальных даты и времени
     private void setInitialDateTime() {
 

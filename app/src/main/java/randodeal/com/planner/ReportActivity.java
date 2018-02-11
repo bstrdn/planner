@@ -33,9 +33,9 @@ public class ReportActivity extends Activity implements View.OnClickListener {
     DBHelper dbHelper;    SQLiteDatabase db;
     HashMap<String, String> map;
     Button btn1,btn2,btn3;
-    MultiAutoCompleteTextView textView;
+
     AutoCompleteTextView autoCompleteTextView;
-    String[] mContacts;
+
     List<String> catList;
     ArrayAdapter adapter;
 
@@ -53,15 +53,9 @@ public class ReportActivity extends Activity implements View.OnClickListener {
 
         // создаем объект для создания и управления версиями БД
         dbHelper = new DBHelper(this);
-        // подключаемся к БД
         db = dbHelper.getWritableDatabase();
 
-//        ContentValues cv = new ContentValues();
-//        cv.put("idClient", 3333);
-//        cv.put("dateVisit", 123213213);
-//        cv.put("cost", 1500);
-//        // вставляем запись
-//        db.insert("record", null, cv);
+
 catList = new ArrayList<>();
 
 
@@ -113,14 +107,9 @@ catList = new ArrayList<>();
 
 
         autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
-//        List<String> catList = Arrays.asList(mCats);
-
         adapter = new ArrayAdapter(
                 this, android.R.layout.simple_dropdown_item_1line, catList);
         autoCompleteTextView.setAdapter(adapter);
-
-
-
         autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -129,35 +118,16 @@ catList = new ArrayList<>();
                 Toast.makeText(ReportActivity.this,
                         adapter.getItem(position).toString(),
                         Toast.LENGTH_SHORT).show();
-String[] at4 = {adapter.getItem(position).toString()};
-
-//                Cursor  c = db.query("client", null, "name", at4, null, null, null);
-////        c.getString(c.getColumnIndex("name"));
-//                c.moveToFirst();
+                String[] at4 = {adapter.getItem(position).toString()};
                 Cursor c = null;
-//                c = db.rawQuery("select 1 from mytable where name='Name'", null );
-//                Log.d("mylogs", " recordid = " + c.getInt(0));
-
                 String[] argsName = {adapter.getItem(position).toString()};
                 c = db.query("client", null,"name = ?", argsName, null, null,null );
                 c.moveToFirst();
                 int idClient = c.getColumnIndex("idClient");
                 System.out.println(c.getString(idClient));
-             //   System.out.println(c.getString(c.getColumnIndex("idClient")));
-                System.out.println("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
-                System.out.println("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
-                System.out.println("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
             }
         });
-//
-//        c = db.query("client", null, null, null, null, null, null);
-////        c.getString(c.getColumnIndex("name"));
-//        c.moveToFirst();
-//     //   int idClietn = c.getColumnIndex("idClient");
-//        System.out.println(c.getString(c.getColumnIndex("idClient")));
-//        System.out.println("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
-//        System.out.println("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
-//        System.out.println("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
+
     }
 
     @Override

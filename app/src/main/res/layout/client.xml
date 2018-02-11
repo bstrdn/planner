@@ -52,12 +52,11 @@
     <ListView
         android:id="@+id/lv1"
         android:layout_width="wrap_content"
-        android:layout_height="278dp"
+        android:layout_height="0dp"
         android:layout_marginBottom="4dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
         app:layout_constraintTop_toBottomOf="@+id/btnPush"
-        app:layout_constraintVertical_bias="0.0"
         tools:layout_editor_absoluteX="0dp">
 
     </ListView>
@@ -66,21 +65,11 @@
         android:id="@+id/etName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="27dp" />
-
-    <EditText
-        android:id="@+id/etPhone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:ems="10"
+        android:hint="Имя"
         android:inputType="textPersonName"
-        android:text="Phone"
-        app:layout_constraintTop_toBottomOf="@+id/etName"
+        app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="0dp" />
 
     <EditText
@@ -89,8 +78,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:ems="10"
+        android:hint="Комментарий"
         android:inputType="textPersonName"
-        android:text="More"
         app:layout_constraintTop_toBottomOf="@+id/etPhone"
         tools:layout_editor_absoluteX="0dp" />
 
@@ -103,5 +92,16 @@
         android:text="PUSH"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etMore" />
+
+    <EditText
+        android:id="@+id/etPhone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="Телефон"
+        android:inputType="phone"
+        app:layout_constraintTop_toBottomOf="@+id/etName"
+        tools:layout_editor_absoluteX="0dp" />
 
 </android.support.constraint.ConstraintLayout>

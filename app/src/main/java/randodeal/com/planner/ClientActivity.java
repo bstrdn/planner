@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class ClientActivity extends Activity implements View.OnClickListener {
@@ -31,6 +33,7 @@ public class ClientActivity extends Activity implements View.OnClickListener {
     ArrayAdapter<String> adapter;
     ArrayList<HashMap<String, String>> arrayList;
     HashMap<String, String> map;
+    int userAlreadyExists = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,13 +60,33 @@ public class ClientActivity extends Activity implements View.OnClickListener {
         arrayList = new ArrayList<>();
 
 
- //       adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, android.R.id.text1, listItems);
+
+
+
+lv1();
+
+        lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                Log.d(LOG_TAG, "itemClick: position = " + position + ", id = "
+                        + id);
+                String value = adapter.getItem(position);
+                System.out.println(value);
+            }
+        });
+
+
+    }
+
+
+
+
+    void lv1 () {
+        //       adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, android.R.id.text1, listItems);
         SimpleAdapter  adapter = new SimpleAdapter(this, arrayList,
                 R.layout.my_item, new String[]{"Name","Phone"},
                 new int[]{R.id.text1, R.id.text2});
         lv1.setAdapter(adapter);
-
-
         // создаем объект для создания и управления версиями БД / подключаемся к БД
         dbHelper = new DBHelper(this);
         db = dbHelper.getWritableDatabase();
@@ -85,12 +108,17 @@ public class ClientActivity extends Activity implements View.OnClickListener {
             Log.d(LOG_TAG, "0 rows");
         c.close();
 
+    }
 
 
+    //ЗАКРЫВАЕТ ПРИЛОЖЕНИЕ
+    public void onDestroy() {
+        moveTaskToBack(true);
 
+        super.onDestroy();
 
-
-
+        System.runFinalizersOnExit(true);
+        System.exit(0);
     }
 
     @Override
@@ -112,24 +140,60 @@ public class ClientActivity extends Activity implements View.OnClickListener {
                 break;
 
             case R.id.btnPush:
-                ContentValues cv = new ContentValues();
-                String name = etName.getText().toString();
-                String phone = etPhone.getText().toString();
-                String more = etMore.getText().toString();
-                cv.put("name", name);
-                cv.put("phone", phone);
-                cv.put("more", more);
-                // вставляем запись и получаем ее ID
-                long rowID = db.insert("client", null, cv);
-
-                Toast toast = Toast.makeText(getApplicationContext(),
-                        name + " добавлен!", Toast.LENGTH_SHORT);
-                toast.show();
+                btnPush();
                 break;
         }
+    }
 
+   void btnPush() {
+       userAlreadyExists = 0;
+       ContentValues cv = new ContentValues();
+       String name = etName.getText().toString();
+       String phone = etPhone.getText().toString();
+       String more = etMore.getText().toString();
+       for (Map<String, String> hashMap : arrayList)
+       {
+           // For each hashmap, iterate over it
+           for (Map.Entry<String, String> entry  : hashMap.entrySet())
+           {
+               // Do something with your entrySet, for example get the key.
+//               String sListName = entry.getKey();
+               for (String key : map.values()) {
+                   if (name.equals(key)) {
+                      userAlreadyExists = 1;
+                   }
+               }
+           }
+       }
+       if (name.equals("") || phone.equals("")) {
+           Toast toast = Toast.makeText(getApplicationContext(),
+                   "Заполните все поля!!", Toast.LENGTH_SHORT);
+           toast.show();
+       }
+       else if (userAlreadyExists == 1) {
+           Toast toast = Toast.makeText(getApplicationContext(),
+                       "Пользователь уже существует!!", Toast.LENGTH_SHORT);
+               toast.show();
+       }
 
+       else {
+           arrayList.clear();
+           cv.put("name", name);
+           cv.put("phone", phone);
+           cv.put("more", more);
+           // вставляем запись
+           db.insert("client", null, cv);
+           Toast toast = Toast.makeText(getApplicationContext(),
+                   name + " добавлен!", Toast.LENGTH_SHORT);
+           toast.show();
+           lv1();
+       }
 
+//       for (Map.Entry<String, String> entry : map.entrySet()) {
+//           String key = entry.getKey();
+//           Object value = entry.getValue();
+//           System.out.println(key + "  " + value);
+//       }
 
 
 
