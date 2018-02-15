@@ -11,8 +11,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +33,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
+
+import devs.mulham.horizontalcalendar.HorizontalCalendar;
+import devs.mulham.horizontalcalendar.HorizontalCalendarView;
+import devs.mulham.horizontalcalendar.model.CalendarEvent;
+import devs.mulham.horizontalcalendar.utils.CalendarEventsPredicate;
+import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
 
 public class RecordActivity extends Activity implements View.OnClickListener {
     Button btn1,btn2,btn3;
@@ -50,6 +59,10 @@ public class RecordActivity extends Activity implements View.OnClickListener {
     TimePickerDialog timePickerDialog;
     AlertDialog.Builder ad;
     Context context;
+    private HorizontalCalendar horizontalCalendar;
+    long MinListView = Calendar.getInstance().getTimeInMillis();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +82,91 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         arrayList = new ArrayList<>();
         setInitialDateTime();
         catList = new ArrayList<>();
+
+
+
+
+        //////////////////////////
+        //////////////////////////
+        /////////КАЛЕНДАРЬ
+        //////////////////////////
+        /////////////////////////
+           /* starts before 1 month from now */
+        Calendar startDate = Calendar.getInstance();
+        startDate.add(Calendar.MONTH, -1);
+
+    /* ends after 1 month from now */
+        Calendar endDate = Calendar.getInstance();
+        endDate.add(Calendar.MONTH, 1);
+
+        final Calendar defaultSelectedDate = Calendar.getInstance();
+
+         horizontalCalendar = new HorizontalCalendar.Builder(this, R.id.calendarView)
+                .range(startDate, endDate)
+                .datesNumberOnScreen(7)
+//                .addEvents(new CalendarEventsPredicate() {
+//
+//                    Random rnd = new Random();
+//                    @Override
+//                    public List<CalendarEvent> events(Calendar date) {
+//                        List<CalendarEvent> events = new ArrayList<>();
+//                        int count = rnd.nextInt(6);
+//
+//                        for (int i = 0; i <= count; i++){
+//                            events.add(new CalendarEvent(Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)), "event"));
+//                        }
+//
+//                        return events;
+//                    }
+//                })
+                .build();
+
+
+
+        horizontalCalendar.setCalendarListener(new HorizontalCalendarListener() {
+            @Override
+            public void onDateSelected(Calendar date, int position) {
+                String selectedDateStr = DateFormat.format("EEE, MMM d, yyyy", date).toString();
+                Toast.makeText(RecordActivity.this, selectedDateStr + " selected!", Toast.LENGTH_SHORT).show();
+                Log.i("onDateSelected", selectedDateStr + " - Position = " + position);
+                System.out.println("ДАТА" + date.getTimeInMillis());
+                System.out.println("ПОЗИЦИЯ" + position);
+                MinListView = date.getTimeInMillis();
+
+                arrayList.clear();
+                lvRecord();
+            }
+
+            @Override
+            public void onCalendarScroll(HorizontalCalendarView calendarView,
+                                         int dx, int dy) {
+
+            }
+
+            @Override
+            public boolean onDateLongClicked(Calendar date, int position) {
+                return true;
+            }
+        });
+
+
+        //////////////////////////
+        //////////////////////////
+        /////////КАЛЕНДАРЬ
+        //////////////////////////
+        /////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -137,7 +235,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 //                System.out.println(dateMS);
 //                System.out.println(Long.parseLong(dateMS));
 //                System.out.println(Calendar.getInstance().getTimeInMillis());
-                if (c.getLong(dateColIndex) > Calendar.getInstance().getTimeInMillis()) {
+                if (c.getLong(dateColIndex) > MinListView) {
                     arrayList.add(map);
                 }
 

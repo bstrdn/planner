@@ -6,4 +6,11 @@
     android:layout_height="match_parent"
     tools:context="randodeal.com.planner.test">
 
+    <devs.mulham.horizontalcalendar.HorizontalCalendarView
+        android:id="@+id/calendarView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        app:textColorSelected="#FFFF"/>
+
 </android.support.constraint.ConstraintLayout>
