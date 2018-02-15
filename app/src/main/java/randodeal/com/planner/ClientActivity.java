@@ -65,15 +65,15 @@ public class ClientActivity extends Activity implements View.OnClickListener {
 
 lv1();
 
-        lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                Log.d(LOG_TAG, "itemClick: position = " + position + ", id = "
-                        + id);
-                String value = adapter.getItem(position);
-                System.out.println(value);
-            }
-        });
+//        lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            public void onItemClick(AdapterView<?> parent, View view,
+//                                    int position, long id) {
+//                Log.d(LOG_TAG, "itemClick: position = " + position + ", id = "
+//                        + id);
+//                String value = adapter.getItem(position);
+//                System.out.println(value);
+//            }
+//        });
 
 
     }
