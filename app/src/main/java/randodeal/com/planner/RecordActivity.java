@@ -88,37 +88,46 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 
         //////////////////////////
         //////////////////////////
-        /////////КАЛЕНДАРЬ
+        /////////КАЛЕНДАРЬ СВЕРХУ
         //////////////////////////
         /////////////////////////
            /* starts before 1 month from now */
         Calendar startDate = Calendar.getInstance();
-        startDate.add(Calendar.MONTH, -1);
+        startDate.add(Calendar.MONTH, -6);
 
     /* ends after 1 month from now */
         Calendar endDate = Calendar.getInstance();
-        endDate.add(Calendar.MONTH, 1);
+        endDate.add(Calendar.MONTH, 6);
 
         final Calendar defaultSelectedDate = Calendar.getInstance();
 
          horizontalCalendar = new HorizontalCalendar.Builder(this, R.id.calendarView)
                 .range(startDate, endDate)
                 .datesNumberOnScreen(7)
-//                .addEvents(new CalendarEventsPredicate() {
-//
-//                    Random rnd = new Random();
-//                    @Override
-//                    public List<CalendarEvent> events(Calendar date) {
-//                        List<CalendarEvent> events = new ArrayList<>();
-//                        int count = rnd.nextInt(6);
-//
+                .addEvents(new CalendarEventsPredicate() {
+                    Random rnd = new Random();
+                    @Override
+                    public List<CalendarEvent> events(Calendar date) {
+                        List<CalendarEvent> events = new ArrayList<>();
+                        int count = rnd.nextInt(8);
+                        System.out.println("RANDOM ------------ " + (count + 1) );
+
+                        date.add(2, 3);
+                        events.add(new CalendarEvent(Color.rgb(222, 222, 222), "event"));
+                    //    events.add(new CalendarEvent(222))
+
 //                        for (int i = 0; i <= count; i++){
 //                            events.add(new CalendarEvent(Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)), "event"));
-//                        }
 //
-//                        return events;
-//                    }
-//                })
+//                            System.out.println("DOBAV" + i);
+//                            System.out.println(date.getTimeInMillis());
+//                            System.out.println(events.);
+//                        }
+
+                        return events;
+                    }
+
+                })
                 .build();
 
 
@@ -126,11 +135,11 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         horizontalCalendar.setCalendarListener(new HorizontalCalendarListener() {
             @Override
             public void onDateSelected(Calendar date, int position) {
-                String selectedDateStr = DateFormat.format("EEE, MMM d, yyyy", date).toString();
-                Toast.makeText(RecordActivity.this, selectedDateStr + " selected!", Toast.LENGTH_SHORT).show();
-                Log.i("onDateSelected", selectedDateStr + " - Position = " + position);
-                System.out.println("ДАТА" + date.getTimeInMillis());
-                System.out.println("ПОЗИЦИЯ" + position);
+//                String selectedDateStr = DateFormat.format("EEE, MMM d, yyyy", date).toString();
+//                Toast.makeText(RecordActivity.this, selectedDateStr + " selected!", Toast.LENGTH_SHORT).show();
+//                Log.i("onDateSelected", selectedDateStr + " - Position = " + position);
+//                System.out.println("ДАТА" + date.getTimeInMillis());
+//                System.out.println("ПОЗИЦИЯ" + position);
                 MinListView = date.getTimeInMillis();
 
                 arrayList.clear();
@@ -152,7 +161,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 
         //////////////////////////
         //////////////////////////
-        /////////КАЛЕНДАРЬ
+        /////////КАЛЕНДАРЬ СВЕРХУ
         //////////////////////////
         /////////////////////////
 
@@ -175,6 +184,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         db = dbHelper.getWritableDatabase();
 
 
+        //заполняем листвью
         lvRecord ();
 
 
@@ -211,6 +221,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 
     }
 
+    //ЛИСТЬ ВЬЮ ЗАПИСЬ
     private void lvRecord() {
 
 
@@ -265,6 +276,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         c.close();
     }
 
+    ///КНОПКИ
     @Override
     public void onClick(View view) {
         Intent intent;

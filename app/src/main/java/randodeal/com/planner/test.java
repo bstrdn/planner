@@ -44,10 +44,11 @@ public class test extends AppCompatActivity {
                     @Override
                     public List<CalendarEvent> events(Calendar date) {
                         List<CalendarEvent> events = new ArrayList<>();
-                        int count = rnd.nextInt(6);
+                        int count = rnd.nextInt(8);
 
                         for (int i = 0; i <= count; i++){
                             events.add(new CalendarEvent(Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)), "event"));
+
                         }
 
                         return events;
