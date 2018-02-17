@@ -3,7 +3,6 @@ package randodeal.com.planner;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,10 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -33,34 +30,41 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 
 import devs.mulham.horizontalcalendar.HorizontalCalendar;
 import devs.mulham.horizontalcalendar.HorizontalCalendarView;
 import devs.mulham.horizontalcalendar.model.CalendarEvent;
 import devs.mulham.horizontalcalendar.utils.CalendarEventsPredicate;
 import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
+import devs.mulham.horizontalcalendar.utils.Utils;
 
 public class RecordActivity extends Activity implements View.OnClickListener {
     Button btn1,btn2,btn3;
-    Button btnNewRecord;
-    TextView currentDateTime;
-    Calendar dateAndTime= Calendar.getInstance();
-    ListView lvRecord;
+
+    Button btnNewRecord;                //--------------новая запись
+    TextView currentDateTime;           //--------------текствью (скрыт)
+    Calendar dateAndTime = Calendar.getInstance(); //----текущая дата
+    Calendar dateInCal = Calendar.getInstance();
+    Calendar calendarNow = Calendar.getInstance();
     DBHelper dbHelper;    SQLiteDatabase db;
     HashMap<String, String> map;
     ArrayList<HashMap<String, String>> arrayList;
-    List<String> catList;
-    ArrayAdapter adapter;
+    List<String> listClietn;           //---------------список клиентов
+    List<Calendar> listEvents;         //--------------список дат для событий
+    ListView lvRecord;
+    //ArrayAdapter adapter;
     ArrayAdapter adapter2;
     AutoCompleteTextView autoCompleteTextView2;
+    EditText etPhone2;
     Cursor c;
     DatePickerDialog datePickerDialog;
     TimePickerDialog timePickerDialog;
     AlertDialog.Builder ad;
     Context context;
     private HorizontalCalendar horizontalCalendar;
-    long MinListView = Calendar.getInstance().getTimeInMillis();
+    long minDateToList;              //----------время для начальной инициации
+    int userAlreadyExists;           //----------существует ли такой же пользователь
 
 
 
@@ -78,11 +82,36 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         btnNewRecord = (Button) findViewById(R.id.btnNewRecord);
         lvRecord = (ListView) findViewById(R.id.lvRecord);
       //  btnNewRecord.setOnClickListener(this);
+        etPhone2 = (EditText) findViewById(R.id.etPhone2);
         currentDateTime = (TextView) findViewById(R.id.currentDateTime);
         arrayList = new ArrayList<>();
         setInitialDateTime();
-        catList = new ArrayList<>();
+        listClietn = new ArrayList<>();
+        listEvents = new ArrayList<>();
+        //установка даты текущего дня 0:00
+        Calendar minDate;
+        minDate = Calendar.getInstance();
+        System.out.println("----------------------------------------------------- " + minDate);
+        minDate.set(Calendar.SECOND, 0);
+        minDate.set(Calendar.MINUTE, 0);
+        minDate.set(Calendar.HOUR_OF_DAY, 0);
+        minDateToList = minDate.getTimeInMillis();
 
+
+
+
+
+
+
+//        Calendar calendarDate = Calendar.getInstance(); //--------дата, для горизонтального календаря
+
+        // создаем объект для создания и управления версиями БД / подключаемся к БД
+        dbHelper = new DBHelper(this);
+        db = dbHelper.getWritableDatabase();
+
+
+        //заполняем листвью
+        lvRecord ();
 
 
 
@@ -93,40 +122,27 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         /////////////////////////
            /* starts before 1 month from now */
         Calendar startDate = Calendar.getInstance();
-        startDate.add(Calendar.MONTH, -6);
-
+        startDate.add(Calendar.MONTH, -4);
     /* ends after 1 month from now */
         Calendar endDate = Calendar.getInstance();
-        endDate.add(Calendar.MONTH, 6);
+        endDate.add(Calendar.MONTH, 4);
+//        final Calendar defaultSelectedDate = Calendar.getInstance();
 
-        final Calendar defaultSelectedDate = Calendar.getInstance();
-
-         horizontalCalendar = new HorizontalCalendar.Builder(this, R.id.calendarView)
+        horizontalCalendar = new HorizontalCalendar.Builder(this, R.id.calendarView)
                 .range(startDate, endDate)
                 .datesNumberOnScreen(7)
                 .addEvents(new CalendarEventsPredicate() {
-                    Random rnd = new Random();
                     @Override
                     public List<CalendarEvent> events(Calendar date) {
                         List<CalendarEvent> events = new ArrayList<>();
-                        int count = rnd.nextInt(8);
-                        System.out.println("RANDOM ------------ " + (count + 1) );
-
-                        date.add(2, 3);
-                        events.add(new CalendarEvent(Color.rgb(222, 222, 222), "event"));
-                    //    events.add(new CalendarEvent(222))
-
-//                        for (int i = 0; i <= count; i++){
-//                            events.add(new CalendarEvent(Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)), "event"));
-//
-//                            System.out.println("DOBAV" + i);
-//                            System.out.println(date.getTimeInMillis());
-//                            System.out.println(events.);
-//                        }
-
+                        for (Calendar i : listEvents) {
+//                            System.out.println("ВЫВОД ДАТЫ " + i.getTimeInMillis());
+                            if (Utils.isSameDate(date, i)) {
+                                events.add(new CalendarEvent(0xFFFFFFFF, "событие"));
+                            }
+                        }
                         return events;
                     }
-
                 })
                 .build();
 
@@ -140,9 +156,10 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 //                Log.i("onDateSelected", selectedDateStr + " - Position = " + position);
 //                System.out.println("ДАТА" + date.getTimeInMillis());
 //                System.out.println("ПОЗИЦИЯ" + position);
-                MinListView = date.getTimeInMillis();
-
+                minDateToList = date.getTimeInMillis();
+                calendarNow = date;
                 arrayList.clear();
+                listEvents.clear();
                 lvRecord();
             }
 
@@ -157,41 +174,16 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 return true;
             }
         });
-
-
         //////////////////////////
         //////////////////////////
         /////////КАЛЕНДАРЬ СВЕРХУ
         //////////////////////////
         /////////////////////////
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // создаем объект для создания и управления версиями БД / подключаемся к БД
-        dbHelper = new DBHelper(this);
-        db = dbHelper.getWritableDatabase();
-
-
-        //заполняем листвью
-        lvRecord ();
-
-
         //выпадающий список пациентов
         autoCompleteTextView2 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
         adapter2 = new ArrayAdapter(
-                this, android.R.layout.simple_dropdown_item_1line, catList);
+                this, android.R.layout.simple_dropdown_item_1line, listClietn);
         autoCompleteTextView2.setAdapter(adapter2);
         autoCompleteTextView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             ////////обработчик нажатия
@@ -207,7 +199,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 c = db.query("client", null,"name = ?", argsName, null, null,null );
                 c.moveToFirst();
                 int idClient = c.getColumnIndex("idClient");
-                System.out.println(c.getString(idClient));
+ //               System.out.println(c.getString(idClient));
             }
         });
 
@@ -221,10 +213,8 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 
     }
 
-    //ЛИСТЬ ВЬЮ ЗАПИСЬ
+    //ЛИСТВЬЮ ЗАПИСЬ
     private void lvRecord() {
-
-
         //получаем список записей
         c = db.query("record", null, null, null, null, null, "dateVisit"); // делаем запрос всех данных из таблицы mytable, получаем Cursor
         // ставим позицию курсора на первую строку выборки  // если в выборке нет строк, вернется false
@@ -239,17 +229,19 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 String dateMS = DateUtils.formatDateTime(this, c.getLong(dateColIndex), DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE |
                         DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY);
                 map.put("Date", dateMS);
+                    ///////запись даты событий для горизонтального колендаря
+                Calendar calendarDate = Calendar.getInstance(); //--------дата, для горизонтального календаря
+                calendarDate.setTimeInMillis(c.getLong(dateColIndex));
+//                System.out.println("КАЛЕНДАРЬ -------- дата для ГК " + calendarDate.getTimeInMillis());
+                listEvents.add(calendarDate);
+
                 //   map.put("Phone", c.getString(phoneColIndex));
-                System.out.println("ДЛИННОЕ ЧИСЛО");
-                System.out.println(dateColIndex);
-              //  System.out.println(c.getString(dateColIndex).toString());
-//                System.out.println(dateMS);
-//                System.out.println(Long.parseLong(dateMS));
-//                System.out.println(Calendar.getInstance().getTimeInMillis());
-                if (c.getLong(dateColIndex) > MinListView) {
+ //               System.out.println("ДЛИННОЕ ЧИСЛО");
+ //               System.out.println(dateColIndex);
+                        ///проверка даты, чтобы она была на текущий день
+                if (c.getLong(dateColIndex) > minDateToList && c.getLong(dateColIndex) < minDateToList + 1000 * 60 * 60 * 24) {
                     arrayList.add(map);
                 }
-
                 // переход на следующую строку  // а если следующей нет (текущая - последняя), то false - выходим из цикла
             } while (c.moveToNext());
         } else
@@ -268,8 +260,8 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         if (c.moveToFirst()) {
             int idClient = c.getColumnIndex("name");
             do {
-                catList.add(c.getString(idClient));
-                System.out.println(c.getString(idClient));
+                listClietn.add(c.getString(idClient));
+ //               System.out.println(c.getString(idClient));
             } while (c.moveToNext());
         } else
             Log.d("ошибка", "0 rows");
@@ -309,67 +301,60 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 
         boolean a = false;
         final String man = autoCompleteTextView2.getText().toString();
-
+        //если не пустое имя
         if (!man.equals("")) {
-
-
-
-
-//проверка есть ли в базе этот человек
-            for (String ctlst : catList) {
+        //проверка есть ли в базе этот человек
+            for (String ctlst : listClietn) {
                 if (man.equals(ctlst)) {
                     a = true;
                 }
             }
-
-
-            //если такого клиента нет в базе
+        //если такого клиента нет в базе а = false
             if (!a) {
-
-
                 context = RecordActivity.this;
                 String title = "Клиента " + man + " нет в базе!";
                 String message = "Добавить?";
                 String button1String = "Добавить в базу";
                 String button2String = "Отмена";
-
                 ad = new AlertDialog.Builder(context);
                 ad.setTitle(title);  // заголовок
                 ad.setMessage(message); // сообщение
                 ad.setPositiveButton(button1String, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int arg1) {
-
                         datePickerDialog = new DatePickerDialog(context, d,
-                                dateAndTime.get(Calendar.YEAR),
-                                dateAndTime.get(Calendar.MONTH),
-                                dateAndTime.get(Calendar.DAY_OF_MONTH));
+                                calendarNow.get(Calendar.YEAR),
+                                calendarNow.get(Calendar.MONTH),
+                                calendarNow.get(Calendar.DAY_OF_MONTH)
+
+                        );
                         datePickerDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             public void onDismiss(DialogInterface dialog) {
-                //добавляем нового клиента
+                            //добавляем нового клиента
                                 ContentValues cv = new ContentValues();
                                 cv.put("name", man);
+                                if (!etPhone2.getText().toString().equals("")) {
+                                    cv.put("phone", etPhone2.getText().toString());
+                                }
                                 db.insert("client", null, cv);
+                                //после - выбор времени setTime();
                                 setTime();
                             }
 
                         });
+                        //диалог выбора даты
                         datePickerDialog.show();
 
-                        //                    Toast.makeText(context, "Вы сделали правильный выбор",
-//                            Toast.LENGTH_LONG).show();
                     }
                 });
                 ad.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int arg1) {
-//                    Toast.makeText(context, "Возможно вы правы", Toast.LENGTH_LONG)
-//                            .show();
+                        //отмена добавления
                     }
                 });
                 ad.setCancelable(true);
                 ad.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     public void onCancel(DialogInterface dialog) {
-                        Toast.makeText(context, "Вы ничего не выбрали",
-                                Toast.LENGTH_LONG).show();
+                        //отмена кнопкой назад
                     }
                 });
                 ad.show();
@@ -380,37 +365,28 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 //            toast.show();
             } else {
                 datePickerDialog = new DatePickerDialog(this, d,
-                        dateAndTime.get(Calendar.YEAR),
-                        dateAndTime.get(Calendar.MONTH),
-                        dateAndTime.get(Calendar.DAY_OF_MONTH));
+                        calendarNow.get(Calendar.YEAR),
+                        calendarNow.get(Calendar.MONTH),
+                        calendarNow.get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    //после - выбор времени setTime();
                     public void onDismiss(DialogInterface dialog) {
                         setTime();
                     }
 
                 });
+                //диалог выбора даты
                 datePickerDialog.show();
             }
 
         }
-
-
-
-//        System.out.println(autoCompleteTextView2.getText());
-//        if (autoCompleteTextView2.getText().toString().equals("petr")) {
-//            System.out.println("PETR");
-//        }
-//        else {
-//
-//        }
-
-
     }
 
 
 
     // отображаем диалоговое окно для выбора времени
     public void setTime() {
+        userAlreadyExists = 0;
         timePickerDialog = new TimePickerDialog(RecordActivity.this, t,
                 dateAndTime.get(Calendar.HOUR_OF_DAY),
                 dateAndTime.get(Calendar.MINUTE), true);
@@ -422,18 +398,45 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 String date = currentDateTime.getText().toString();
                 long dateMS = dateAndTime.getTimeInMillis();
 //                String more = etMore.getText().toString();
-                cv.put("idClient", name);
-                cv.put("dateVisit", dateMS);
-                System.out.println(dateMS);
+                //проверка даты, есть ли уже такая
+                for (Map<String, String> hashMap : arrayList)
+                {     // For each hashmap, iterate over it
+                    for (Map.Entry<String, String> entry  : hashMap.entrySet())
+                    { // Do something with your entrySet, for example get the key.
+                        String sListName = entry.getValue();
+                      //  String sdateMS = DateUtils.formatDateTime(this, entry., DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE |
+                       //         DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY);
+                        System.out.println("выбор времени =============" +sListName);
+                        System.out.println("ВРЕМЯ ДЛЯ СРАВНЕНИЯ =======" +date);
+                        if (name.equals(sListName)) {
+                            userAlreadyExists = 1;
+                        }
+                    }
+                }
+if (userAlreadyExists == 0) {
+    cv.put("idClient", name);
+    cv.put("dateVisit", dateMS);
+    //               System.out.println(dateMS);
 //                cv.put("more", more);
-                db.insert("record", null, cv);
+    db.insert("record", null, cv);
 
+//                Toast toast = Toast.makeText(getApplicationContext(),
+//                        name + " добавлен!", Toast.LENGTH_SHORT);
+//                toast.show();
+
+    //очиста списка, перестроение
+    arrayList.clear();
+    listEvents.clear();
+    lvRecord();
+    horizontalCalendar.refresh();
+}
+else {
                 Toast toast = Toast.makeText(getApplicationContext(),
-                        name + " добавлен!", Toast.LENGTH_SHORT);
+                        "Это время уже занято!", Toast.LENGTH_SHORT);
                 toast.show();
+}
 
-                arrayList.clear();
-               lvRecord();
+
 
 
 
@@ -452,13 +455,12 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 
     // установка начальных даты и времени
     private void setInitialDateTime() {
-
         currentDateTime.setText(DateUtils.formatDateTime(this,
                 dateAndTime.getTimeInMillis(),
                 DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
-                        | DateUtils.FORMAT_SHOW_TIME));
+                        | DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_WEEKDAY));
        // currentDateTime.setText((CharSequence) dateAndTime.getTime());
-        System.out.println(dateAndTime.getTimeInMillis());
+//        System.out.println(dateAndTime.getTimeInMillis());
     }
 
     // установка обработчика выбора времени

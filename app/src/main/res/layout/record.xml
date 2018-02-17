@@ -12,23 +12,23 @@
         android:layout_height="39dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="112dp"
+        android:layout_marginTop="8dp"
         android:onClick="setDate"
         android:text="@string/newRecord"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.437"
         app:layout_constraintStart_toEndOf="@+id/autoCompleteTextView2"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/calendarView" />
 
     <TextView
         android:id="@+id/currentDateTime"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_height="16dp"
+        android:layout_marginTop="52dp"
         android:text="Записаны на сегодня"
         android:visibility="invisible"
         app:layout_constraintTop_toBottomOf="@+id/btnNewRecord"
-        tools:layout_editor_absoluteX="16dp" />
+        tools:layout_editor_absoluteX="226dp" />
 
     <devs.mulham.horizontalcalendar.HorizontalCalendarView
         android:id="@+id/calendarView"
@@ -94,11 +94,23 @@
         android:layout_width="191dp"
         android:layout_height="39dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="112dp"
+        android:layout_marginTop="8dp"
         android:completionHint="Выберите из списка"
         android:completionThreshold="1"
         android:hint="Введите имя"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/calendarView" />
+
+    <EditText
+        android:id="@+id/etPhone2"
+        android:layout_width="192dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="Телефон (не обяз)"
+        android:inputType="phone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/autoCompleteTextView2" />
 
 </android.support.constraint.ConstraintLayout>

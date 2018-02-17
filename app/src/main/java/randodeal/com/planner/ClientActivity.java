@@ -80,7 +80,7 @@ lv1();
 
 
 
-
+///Построение списка клиентов
     void lv1 () {
         //       adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, android.R.id.text1, listItems);
         SimpleAdapter  adapter = new SimpleAdapter(this, arrayList,
@@ -152,19 +152,18 @@ lv1();
        String phone = etPhone.getText().toString();
        String more = etMore.getText().toString();
        for (Map<String, String> hashMap : arrayList)
-       {
-           // For each hashmap, iterate over it
+       {     // For each hashmap, iterate over it
            for (Map.Entry<String, String> entry  : hashMap.entrySet())
-           {
-               // Do something with your entrySet, for example get the key.
-//               String sListName = entry.getKey();
-               for (String key : map.values()) {
-                   if (name.equals(key)) {
-                      userAlreadyExists = 1;
-                   }
+           { // Do something with your entrySet, for example get the key.
+              String sListName = entry.getValue();
+               if (name.equals(sListName)) {
+                   userAlreadyExists = 1;
                }
            }
        }
+
+
+
        if (name.equals("") || phone.equals("")) {
            Toast toast = Toast.makeText(getApplicationContext(),
                    "Заполните все поля!!", Toast.LENGTH_SHORT);
@@ -189,11 +188,7 @@ lv1();
            lv1();
        }
 
-//       for (Map.Entry<String, String> entry : map.entrySet()) {
-//           String key = entry.getKey();
-//           Object value = entry.getValue();
-//           System.out.println(key + "  " + value);
-//       }
+
 
 
 
