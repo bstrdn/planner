@@ -3,6 +3,7 @@ package randodeal.com.planner;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,10 +11,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -279,9 +283,10 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.btn2:
-                intent = new Intent(this, test.class);
-                intent.addFlags(65536);
-                startActivity(intent);
+
+//                intent = new Intent(this, Record2Activity.class);
+//                intent.addFlags(65536);
+//                startActivity(intent);
 
                 break;
             case R.id.btn3:
@@ -341,6 +346,8 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                             }
 
                         });
+
+
                         //диалог выбора даты
                         datePickerDialog.show();
 
@@ -408,7 +415,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                        //         DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY);
                         System.out.println("выбор времени =============" +sListName);
                         System.out.println("ВРЕМЯ ДЛЯ СРАВНЕНИЯ =======" +date);
-                        if (name.equals(sListName)) {
+                        if (sListName.equals(date)) {
                             userAlreadyExists = 1;
                         }
                     }
@@ -441,6 +448,11 @@ else {
 
 
             }
+            public void setCancelable(boolean flag) {
+
+            }
+
+
         });
         timePickerDialog.show();
 

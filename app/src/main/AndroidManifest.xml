@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Design.Light.NoActionBar">
-        <activity android:name=".RecordActivity"
+        <activity
+            android:name=".RecordActivity"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -17,12 +18,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ClientActivity"
+        <activity
+            android:name=".ClientActivity"
             android:theme="@style/AppTheme" />
-        <activity android:name=".ReportActivity"
+        <activity
+            android:name=".ReportActivity"
             android:theme="@style/AppTheme2" />
-        <activity android:name=".test"
-            android:theme="@style/Theme.Design.Light.NoActionBar"></activity>
+        <activity
+            android:name=".test"
+            android:theme="@style/Theme.Design.Light.NoActionBar" />
     </application>
 
 </manifest>

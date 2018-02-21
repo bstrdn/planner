@@ -1,19 +1,24 @@
 package randodeal.com.planner;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -65,15 +70,37 @@ public class ClientActivity extends Activity implements View.OnClickListener {
 
 lv1();
 
-//        lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            public void onItemClick(AdapterView<?> parent, View view,
-//                                    int position, long id) {
-//                Log.d(LOG_TAG, "itemClick: position = " + position + ", id = "
-//                        + id);
+        lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(LOG_TAG, "itemClick: position = " + position + ", id = " + id);
+
+
+                final Dialog dialog = new Dialog(ClientActivity.this);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.client2);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+//                View clientView = getLayoutInflater().inflate(R.layout.client2, null);
+                Button btnClietnDel = (Button) dialog.findViewById(R.id.btnClietnDel);
+                TextView tvTest = (TextView) dialog.findViewById(R.id.tvTest);
+                tvTest.setText("itemClick: position = " + position + ", id = " + id);
+
+                btnClietnDel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        System.out.println("ВЫШЕЛ");
+                        dialog.dismiss();
+
+                    }
+                });
+
+
+
+                        dialog.show();
 //                String value = adapter.getItem(position);
 //                System.out.println(value);
-//            }
-//        });
+            }
+        });
 
 
     }
