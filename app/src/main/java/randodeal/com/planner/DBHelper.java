@@ -13,7 +13,9 @@ import android.util.Log;
 
 class DBHelper extends SQLiteOpenHelper {
 
+
     final String LOG_TAG = "myLogs";
+    DBHelper dbHelper;
 
     public DBHelper(Context context) {
         // конструктор суперкласса
@@ -37,6 +39,8 @@ class DBHelper extends SQLiteOpenHelper {
                 + "cost integer" + ");");
 
         db.execSQL("INSERT INTO client (name, phone) VALUES ('Том Смит', 89211234567)");
+
+
     }
 
 
@@ -44,4 +48,11 @@ class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
+
+//    public static void delClient (String tableName, String keyName, String keyValue) {
+//
+//                db.delete(tableName, keyName + " = " + keyValue, null);
+//        System.out.println(clientName);
+//    }
+
 }

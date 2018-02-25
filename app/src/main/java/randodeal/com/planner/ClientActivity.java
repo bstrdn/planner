@@ -70,10 +70,11 @@ public class ClientActivity extends Activity implements View.OnClickListener {
 
 lv1();
 
-        lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(LOG_TAG, "itemClick: position = " + position + ", id = " + id);
+//НАЖАТИЕ НА СПИСОК
 
+        lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                Log.d(LOG_TAG, "itemClick: position = " + position + ", id = " + id);
 
                 final Dialog dialog = new Dialog(ClientActivity.this);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -85,12 +86,17 @@ lv1();
                 TextView tvTest = (TextView) dialog.findViewById(R.id.tvTest);
                 tvTest.setText("itemClick: position = " + position + ", id = " + id);
 
+                //удалить
                 btnClietnDel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         System.out.println("ВЫШЕЛ");
+                        //закрытие диалога
                         dialog.dismiss();
-
+                    //удаление из базы по имени
+                    db.delete("client", "name" + "='" + arrayList.get(position).get("Name")+"'", null);
+                    arrayList.clear();
+                    lv1();
                     }
                 });
 
