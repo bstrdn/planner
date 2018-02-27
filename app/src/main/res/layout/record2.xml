@@ -8,7 +8,7 @@
     tools:context="randodeal.com.planner.Record2Activity">
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/etCost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -31,7 +31,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/btnAddCost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -39,11 +39,11 @@
         android:layout_marginTop="32dp"
         android:text="Добавить"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/editText"
+        app:layout_constraintStart_toEndOf="@+id/etCost"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button5"
+        android:id="@+id/btnRecDel"
         android:layout_width="249dp"
         android:layout_height="36dp"
         android:layout_marginEnd="8dp"
@@ -53,6 +53,6 @@
         android:text="Удалить запись"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
+        app:layout_constraintTop_toBottomOf="@+id/etCost" />
 
 </android.support.constraint.ConstraintLayout>

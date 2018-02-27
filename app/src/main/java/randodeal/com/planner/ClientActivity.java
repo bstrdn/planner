@@ -82,19 +82,20 @@ lv1();
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
 //                View clientView = getLayoutInflater().inflate(R.layout.client2, null);
-                Button btnClietnDel = (Button) dialog.findViewById(R.id.btnClietnDel);
+                Button btnClientDel = (Button) dialog.findViewById(R.id.btnClientDel);
                 TextView tvTest = (TextView) dialog.findViewById(R.id.tvTest);
                 tvTest.setText("itemClick: position = " + position + ", id = " + id);
 
                 //удалить
-                btnClietnDel.setOnClickListener(new View.OnClickListener() {
+                btnClientDel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         System.out.println("ВЫШЕЛ");
                         //закрытие диалога
                         dialog.dismiss();
-                    //удаление из базы по имени
-                    db.delete("client", "name" + "='" + arrayList.get(position).get("Name")+"'", null);
+
+                    //удаление из базы по idClient
+                    db.delete("client", "idClient" + "='" + arrayList.get(position).get("idClient")+"'", null);
                     arrayList.clear();
                     lv1();
                     }
@@ -134,6 +135,8 @@ lv1();
                 map = new HashMap<>();
                 map.put("Name", c.getString(nameColIndex));
                 map.put("Phone", c.getString(phoneColIndex));
+                map.put("idClient", c.getString(idColIndex));
+
                 arrayList.add(map);
                 // переход на следующую строку  // а если следующей нет (текущая - последняя), то false - выходим из цикла
             } while (c.moveToNext());

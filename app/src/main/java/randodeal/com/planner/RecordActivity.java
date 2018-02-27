@@ -30,6 +30,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -105,17 +107,69 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 
 
 
-
-
-//        Calendar calendarDate = Calendar.getInstance(); //--------дата, для горизонтального календаря
-
         // создаем объект для создания и управления версиями БД / подключаемся к БД
         dbHelper = new DBHelper(this);
         db = dbHelper.getWritableDatabase();
 
-
         //заполняем листвью
         lvRecord ();
+
+        //НАЖАТИЕ НА СПИСОК
+        lvRecord.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                Log.d("позиция", "itemClick: position = " + position + ", id = " + id);
+
+                final Dialog dialog = new Dialog(RecordActivity.this);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.record2);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                Button btnRecDel = (Button) dialog.findViewById(R.id.btnRecDel);
+                Button btnAddCost = (Button) dialog.findViewById(R.id.btnAddCost);
+                final TextView etCost = (TextView) dialog.findViewById(R.id.etCost);
+                etCost.setText(1500 + "");
+                final String IdRec = arrayList.get(position).get("IdRec");
+            //удалить
+                btnRecDel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+            //закрытие диалога
+                        dialog.dismiss();
+            //удаление из базы по idRec
+                        db.delete("record", "idRecord" + "='" + IdRec+"'", null);
+                        arrayList.clear();
+                        listEvents.clear();
+                        lvRecord();
+                        horizontalCalendar.refresh();
+                    }
+                });
+                //добавление стоимости
+                btnAddCost.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ContentValues cv = new ContentValues();
+//                        cv.put("coast", Integer.parseInt((String) etCost.getText()));
+                       String etCostt = etCost.getText().toString();
+                        cv.put("cost", etCostt);
+                        //               System.out.println(dateMS);
+//                cv.put("more", more);
+                     //   db.insert("record", null, cv);
+                        db.update("record", cv, "idRecord="+IdRec, null);
+                       // db.delete("record", "idRecord" + "='" + arrayList.get(position).get("IdRec")+"'", null);
+//                        arrayList.clear();
+//                        listEvents.clear();
+//                        lvRecord();
+//                        horizontalCalendar.refresh();
+
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.show();
+//                String value = adapter.getItem(position);
+//                System.out.println(value);
+            }
+        });
+
 
 
 
@@ -197,12 +251,12 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 Toast.makeText(RecordActivity.this,
                         adapter2.getItem(position).toString(),
                         Toast.LENGTH_SHORT).show();
-                String[] at4 = {adapter2.getItem(position).toString()};
+           //     String[] at4 = {adapter2.getItem(position).toString()};
                 Cursor c = null;
                 String[] argsName = {adapter2.getItem(position).toString()};
                 c = db.query("client", null,"name = ?", argsName, null, null,null );
                 c.moveToFirst();
-                int idClient = c.getColumnIndex("idClient");
+             //   int idClient = c.getColumnIndex("idClient");
  //               System.out.println(c.getString(idClient));
             }
         });
@@ -210,14 +264,10 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 
 
 
-
-
-
-
-
+//ЗАКРЫТИЕ onCreate
     }
 
-    //ЛИСТВЬЮ ЗАПИСЬ
+    //ЛИСТВЬЮ ЗАПОЛНЕНИЕ
     private void lvRecord() {
         //получаем список записей
         c = db.query("record", null, null, null, null, null, "dateVisit"); // делаем запрос всех данных из таблицы mytable, получаем Cursor
@@ -225,10 +275,14 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         if (c.moveToFirst()) { // определяем номера столбцов по имени в выборке
             int idColIndex = c.getColumnIndex("idClient");
             int  dateColIndex = c.getColumnIndex("dateVisit");
+            int  idRecColIndex = c.getColumnIndex("idRecord");
+
             //  int phoneColIndex = c.getColumnIndex("cost");
             do {
                 map = new HashMap<>();
                 map.put("Id", c.getString(idColIndex));
+                map.put("IdRec", c.getString(idRecColIndex));
+
                // map.put("Date", c.getString(dateColIndex));
                 String dateMS = DateUtils.formatDateTime(this, c.getLong(dateColIndex), DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE |
                         DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY);
@@ -239,9 +293,6 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 //                System.out.println("КАЛЕНДАРЬ -------- дата для ГК " + calendarDate.getTimeInMillis());
                 listEvents.add(calendarDate);
 
-                //   map.put("Phone", c.getString(phoneColIndex));
- //               System.out.println("ДЛИННОЕ ЧИСЛО");
- //               System.out.println(dateColIndex);
                         ///проверка даты, чтобы она была на текущий день
                 if (c.getLong(dateColIndex) > minDateToList && c.getLong(dateColIndex) < minDateToList + 1000 * 60 * 60 * 24) {
                     arrayList.add(map);
@@ -265,7 +316,6 @@ public class RecordActivity extends Activity implements View.OnClickListener {
             int idClient = c.getColumnIndex("name");
             do {
                 listClietn.add(c.getString(idClient));
- //               System.out.println(c.getString(idClient));
             } while (c.moveToNext());
         } else
             Log.d("ошибка", "0 rows");
@@ -366,10 +416,6 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 });
                 ad.show();
 
-
-//            Toast toast = Toast.makeText(getApplicationContext(),
-//                    man + " не добавлен в базу!", Toast.LENGTH_SHORT);
-//            toast.show();
             } else {
                 datePickerDialog = new DatePickerDialog(this, d,
                         calendarNow.get(Calendar.YEAR),
@@ -413,8 +459,8 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                         String sListName = entry.getValue();
                       //  String sdateMS = DateUtils.formatDateTime(this, entry., DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE |
                        //         DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY);
-                        System.out.println("выбор времени =============" +sListName);
-                        System.out.println("ВРЕМЯ ДЛЯ СРАВНЕНИЯ =======" +date);
+//                        System.out.println("выбор времени =============" +sListName);
+//                        System.out.println("ВРЕМЯ ДЛЯ СРАВНЕНИЯ =======" +date);
                         if (sListName.equals(date)) {
                             userAlreadyExists = 1;
                         }

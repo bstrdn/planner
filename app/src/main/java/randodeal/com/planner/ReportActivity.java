@@ -19,6 +19,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.InputStream;
@@ -33,6 +34,8 @@ public class ReportActivity extends Activity implements View.OnClickListener {
     DBHelper dbHelper;    SQLiteDatabase db;
     HashMap<String, String> map;
     Button btn1,btn2,btn3;
+    TextView tvReportAll;
+    int costAll = 0;
 
     AutoCompleteTextView autoCompleteTextView;
 
@@ -49,6 +52,7 @@ public class ReportActivity extends Activity implements View.OnClickListener {
         btn2.setOnClickListener(this);
         btn3 = (Button) findViewById(R.id.btn3);
         btn3.setOnClickListener(this);
+        tvReportAll = (TextView) findViewById(R.id.tvReportAll);
 
 
         // создаем объект для создания и управления версиями БД
@@ -64,17 +68,17 @@ catList = new ArrayList<>();
 
 
         // делаем запрос всех данных из таблицы, получаем Cursor
-        Cursor c = db.query("client", null, null, null, null, null, null);
+        Cursor c = db.query("record", null, null, null, null, null, null);
         // ставим позицию курсора на первую строку выборки
         // если в выборке нет строк, вернется false
         if (c.moveToFirst()) {
             // определяем номера столбцов по имени в выборке
-            int idClietn = c.getColumnIndex("name");
-//            int dateVisit = c.getColumnIndex("dateVisit");
-//            int cost = c.getColumnIndex("cost");
+            int idClietn = c.getColumnIndex("cost");
             do { // получаем значения по номерам столбцов и пишем все в лог
-            catList.add(c.getString(idClietn));
-
+//                costAll += Integer.parseInt(c.getString(idClietn));
+                int cost = c.getInt(idClietn);
+                costAll += cost;
+                System.out.println(cost);
                 // переход на следующую строку
                 // а если следующей нет (текущая - последняя), то false - выходим из цикла
             } while (c.moveToNext());
@@ -83,6 +87,8 @@ catList = new ArrayList<>();
         c.close();
 
 
+        tvReportAll.setText(costAll + "");
+        System.out.println(costAll);
 
 
 
@@ -105,28 +111,6 @@ catList = new ArrayList<>();
 
 
 
-
-        autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
-        adapter = new ArrayAdapter(
-                this, android.R.layout.simple_dropdown_item_1line, catList);
-        autoCompleteTextView.setAdapter(adapter);
-        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                Toast.makeText(ReportActivity.this,
-                        adapter.getItem(position).toString(),
-                        Toast.LENGTH_SHORT).show();
-                String[] at4 = {adapter.getItem(position).toString()};
-                Cursor c = null;
-                String[] argsName = {adapter.getItem(position).toString()};
-                c = db.query("client", null,"name = ?", argsName, null, null,null );
-                c.moveToFirst();
-                int idClient = c.getColumnIndex("idClient");
-                System.out.println(c.getString(idClient));
-            }
-        });
 
     }
 
