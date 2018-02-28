@@ -478,6 +478,8 @@ if (userAlreadyExists == 0) {
 //                toast.show();
 
     //очиста списка, перестроение
+    autoCompleteTextView2.setText("");
+    etPhone2.setText("");
     arrayList.clear();
     listEvents.clear();
     lvRecord();
