@@ -333,10 +333,10 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.btn2:
-
-//                intent = new Intent(this, Record2Activity.class);
-//                intent.addFlags(65536);
-//                startActivity(intent);
+                //тест
+                intent = new Intent(this, HistoryActivity.class);
+                intent.addFlags(65536);
+                startActivity(intent);
 
                 break;
             case R.id.btn3:

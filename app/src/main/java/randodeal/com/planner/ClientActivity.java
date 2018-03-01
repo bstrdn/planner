@@ -74,15 +74,15 @@ lv1();
 
         lv1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                Log.d(LOG_TAG, "itemClick: position = " + position + ", id = " + id);
 
                 final Dialog dialog = new Dialog(ClientActivity.this);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.setContentView(R.layout.client2);
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-//                View clientView = getLayoutInflater().inflate(R.layout.client2, null);
+                final String idClient = arrayList.get(position).get("idClient");
                 Button btnClientDel = (Button) dialog.findViewById(R.id.btnClientDel);
+                Button btnClientHistory = (Button) dialog.findViewById(R.id.btnClientHistory);
                 TextView tvTest = (TextView) dialog.findViewById(R.id.tvTest);
                 tvTest.setText("itemClick: position = " + position + ", id = " + id);
 
@@ -93,14 +93,22 @@ lv1();
                         System.out.println("ВЫШЕЛ");
                         //закрытие диалога
                         dialog.dismiss();
-
                     //удаление из базы по idClient
-                    db.delete("client", "idClient" + "='" + arrayList.get(position).get("idClient")+"'", null);
+                    db.delete("client", "idClient" + "='" + idClient+"'", null);
                     arrayList.clear();
                     lv1();
                     }
                 });
 
+                btnClientHistory.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(view.getContext(), HistoryActivity.class);
+                        intent.addFlags(65536);
+                        intent.putExtra("idClient", idClient);
+                        startActivity(intent);
+                    }
+                });
 
 
                         dialog.show();
@@ -172,6 +180,7 @@ lv1();
             case R.id.btn3:
                 intent = new Intent(this, ReportActivity.class);
                 intent.addFlags(65536);
+                intent.putExtra("idClient", 2);
                 startActivity(intent);
                 break;
 
