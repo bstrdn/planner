@@ -273,14 +273,14 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         c = db.query("record", null, null, null, null, null, "dateVisit"); // делаем запрос всех данных из таблицы mytable, получаем Cursor
         // ставим позицию курсора на первую строку выборки  // если в выборке нет строк, вернется false
         if (c.moveToFirst()) { // определяем номера столбцов по имени в выборке
-            int idColIndex = c.getColumnIndex("idClient");
+            int nameColIndex = c.getColumnIndex("name");
             int  dateColIndex = c.getColumnIndex("dateVisit");
             int  idRecColIndex = c.getColumnIndex("idRecord");
 
             //  int phoneColIndex = c.getColumnIndex("cost");
             do {
                 map = new HashMap<>();
-                map.put("Id", c.getString(idColIndex));
+                map.put("Id", c.getString(nameColIndex));
                 map.put("IdRec", c.getString(idRecColIndex));
 
                // map.put("Date", c.getString(dateColIndex));
@@ -313,9 +313,9 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         ///получаем список клиентов
         c = db.query("client", null, null, null, null, null, null);
         if (c.moveToFirst()) {
-            int idClient = c.getColumnIndex("name");
+            int name = c.getColumnIndex("name");
             do {
-                listClietn.add(c.getString(idClient));
+                listClietn.add(c.getString(name));
             } while (c.moveToNext());
         } else
             Log.d("ошибка", "0 rows");
@@ -467,7 +467,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                     }
                 }
 if (userAlreadyExists == 0) {
-    cv.put("idClient", name);
+    cv.put("name", name);
     cv.put("dateVisit", dateMS);
     //               System.out.println(dateMS);
 //                cv.put("more", more);
