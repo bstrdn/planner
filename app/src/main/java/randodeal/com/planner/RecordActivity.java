@@ -252,10 +252,10 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                         adapter2.getItem(position).toString(),
                         Toast.LENGTH_SHORT).show();
            //     String[] at4 = {adapter2.getItem(position).toString()};
-                Cursor c = null;
-                String[] argsName = {adapter2.getItem(position).toString()};
-                c = db.query("client", null,"name = ?", argsName, null, null,null );
-                c.moveToFirst();
+//                Cursor c = null;
+//                String[] argsName = {adapter2.getItem(position).toString()};
+//                c = db.query("client", null,"name = ?", argsName, null, null,null );
+//                c.moveToFirst();
              //   int idClient = c.getColumnIndex("idClient");
  //               System.out.println(c.getString(idClient));
             }

@@ -238,4 +238,12 @@ lv1();
 
 
     }
+
+protected void onResume () {
+        super.onResume();
+        arrayList.clear();
+        lv1();
+
+}
+
 }

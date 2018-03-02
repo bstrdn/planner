@@ -35,6 +35,7 @@ class DBHelper extends SQLiteOpenHelper {
         db.execSQL("create table record ("
                 + "idRecord integer primary key autoincrement,"
                 + "idClient text,"
+                + "name text,"        //временно - id
                 + "dateVisit integer,"
                 + "cost integer" + ");");
 
