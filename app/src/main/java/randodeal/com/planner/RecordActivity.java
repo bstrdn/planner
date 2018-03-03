@@ -566,7 +566,7 @@ class MySimpleAdapter extends SimpleAdapter {
                if (text == null || text.equals("")) {
                 text = "0";
             }
-            System.out.println("NNNNNNNNNNNNNNNNNNNNNNNNNNNNN     " + text);
+        //    System.out.println("NNNNNNNNNNNNNNNNNNNNNNNNNNNNN     " + text);
             int i = Integer.parseInt(text);
             if (i < 1) {
                 v.setTextColor(Color.RED);
