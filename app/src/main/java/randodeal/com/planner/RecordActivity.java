@@ -1,5 +1,6 @@
 package randodeal.com.planner;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -16,7 +17,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,6 +27,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -42,6 +46,8 @@ import devs.mulham.horizontalcalendar.model.CalendarEvent;
 import devs.mulham.horizontalcalendar.utils.CalendarEventsPredicate;
 import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
 import devs.mulham.horizontalcalendar.utils.Utils;
+
+import static randodeal.com.planner.R.color.red;
 
 public class RecordActivity extends Activity implements View.OnClickListener {
     Button btn1,btn2,btn3;
@@ -69,8 +75,8 @@ public class RecordActivity extends Activity implements View.OnClickListener {
     private HorizontalCalendar horizontalCalendar;
     long minDateToList;              //----------время для начальной инициации
     int userAlreadyExists;           //----------существует ли такой же пользователь
-
-
+    String[] from = {"name","Date","idClient", "cost"};
+    int[] to = {R.id.text1, R.id.text2, R.id.text3, R.id.text4};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +107,9 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         minDate.set(Calendar.HOUR_OF_DAY, 0);
         minDateToList = minDate.getTimeInMillis();
 
+        // массив имен ДЛЯ АДАПТЕРА атрибутов, из которых будут читаться данные
 
+        // массив ID View-компонентов, в которые будут вставлять данные
 
 
 
@@ -152,12 +160,8 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 //                cv.put("more", more);
                      //   db.insert("record", null, cv);
                         db.update("record", cv, "idRecord="+IdRec, null);
-                       // db.delete("record", "idRecord" + "='" + arrayList.get(position).get("IdRec")+"'", null);
-//                        arrayList.clear();
-//                        listEvents.clear();
-//                        lvRecord();
-//                        horizontalCalendar.refresh();
-
+                        arrayList.clear();
+                        lvRecord();
                         dialog.dismiss();
                     }
                 });
@@ -269,10 +273,12 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 String name = c.getString(c.getColumnIndex("name"));
                 Long date = c.getLong(c.getColumnIndex("dateVisit"));
                 String idClient = c.getString(c.getColumnIndex("idClient"));
+                String cost = c.getString(c.getColumnIndex("cost"));
                 map = new HashMap<>();
                 map.put("name", name);
                 map.put("idClient", idClient);
                 map.put("idRecord", idRecord);
+                map.put("cost", cost);
                 String dateMS = DateUtils.formatDateTime(this, date, DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE |
                         DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY);
                 //дата
@@ -295,10 +301,13 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 //        dbHelper = new DBHelper(this);
 //        db = dbHelper.getWritableDatabase();
 
-        SimpleAdapter adapter = new SimpleAdapter(this, arrayList,
-                R.layout.my_item, new String[]{"name","Date","idClient"},
-                new int[]{R.id.text1, R.id.text2, R.id.text3});
-        lvRecord.setAdapter(adapter);
+//        SimpleAdapter adapter = new SimpleAdapter(this, arrayList,
+//                R.layout.my_item, new String[]{"name","Date","idClient"},
+//                new int[]{R.id.text1, R.id.text2, R.id.text3});
+//        lvRecord.setAdapter(adapter);
+
+        MySimpleAdapter adapter3 = new MySimpleAdapter(this,arrayList,R.layout.my_item, from,to);
+        lvRecord.setAdapter(adapter3);
 
         ///получаем список клиентов
         c = db.query("client", null, null, null, null, null, null);
@@ -532,3 +541,45 @@ else {
         }
     };
 }
+
+
+
+//АДАПТЕР
+class MySimpleAdapter extends SimpleAdapter {
+
+
+    public MySimpleAdapter(Context context,
+                           List<? extends Map<String, ?>> data, int resource,
+                           String[] from, int[] to) {
+        super(context, data, resource, from, to);
+    }
+
+    @Override
+    public void setViewText(TextView v, String text) {
+        boolean all = false;
+        // метод супер-класса, который вставляет текст
+        super.setViewText(v, text);
+        // если нужный нам TextView, то разрисовываем
+
+        if (v.getId() == R.id.text4) {
+
+               if (text == null || text.equals("")) {
+                text = "0";
+            }
+            System.out.println("NNNNNNNNNNNNNNNNNNNNNNNNNNNNN     " + text);
+            int i = Integer.parseInt(text);
+            if (i < 1) {
+                v.setTextColor(Color.RED);
+                v.setText("-");
+                //v.setBackgroundColor(Color.RED);
+            } else if (i >= 1) {
+                all = true;
+                v.setTextColor(Color.BLACK);
+            }
+        }
+
+    }
+}
+
+
+
