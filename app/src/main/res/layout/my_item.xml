@@ -20,6 +20,13 @@
                 android:text="@+id/text1"
                 android:textSize="24sp"
                 tools:text="ffgf"></TextView>
+
+            <TextView
+                android:id="@+id/text3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
         </TableRow>
 
         <TableRow

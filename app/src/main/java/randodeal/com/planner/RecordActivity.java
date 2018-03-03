@@ -30,8 +30,6 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -56,7 +54,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
     DBHelper dbHelper;    SQLiteDatabase db;
     HashMap<String, String> map;
     ArrayList<HashMap<String, String>> arrayList;
-    List<String> listClietn;           //---------------список клиентов
+    List<String> listClient;           //---------------список клиентов
     List<Calendar> listEvents;         //--------------список дат для событий
     ListView lvRecord;
     //ArrayAdapter adapter;
@@ -92,7 +90,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         currentDateTime = (TextView) findViewById(R.id.currentDateTime);
         arrayList = new ArrayList<>();
         setInitialDateTime();
-        listClietn = new ArrayList<>();
+        listClient = new ArrayList<>();
         listEvents = new ArrayList<>();
         //установка даты текущего дня 0:00
         Calendar minDate;
@@ -127,7 +125,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 Button btnAddCost = (Button) dialog.findViewById(R.id.btnAddCost);
                 final TextView etCost = (TextView) dialog.findViewById(R.id.etCost);
                 etCost.setText(1500 + "");
-                final String IdRec = arrayList.get(position).get("IdRec");
+                final String IdRec = arrayList.get(position).get("idRecord");
             //удалить
                 btnRecDel.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -241,7 +239,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         //выпадающий список пациентов
         autoCompleteTextView2 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
         adapter2 = new ArrayAdapter(
-                this, android.R.layout.simple_dropdown_item_1line, listClietn);
+                this, android.R.layout.simple_dropdown_item_1line, listClient);
         autoCompleteTextView2.setAdapter(adapter2);
         autoCompleteTextView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             ////////обработчик нажатия
@@ -251,50 +249,42 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 Toast.makeText(RecordActivity.this,
                         adapter2.getItem(position).toString(),
                         Toast.LENGTH_SHORT).show();
-           //     String[] at4 = {adapter2.getItem(position).toString()};
-//                Cursor c = null;
-//                String[] argsName = {adapter2.getItem(position).toString()};
-//                c = db.query("client", null,"name = ?", argsName, null, null,null );
-//                c.moveToFirst();
-             //   int idClient = c.getColumnIndex("idClient");
- //               System.out.println(c.getString(idClient));
             }
         });
 
-
-
-
 //ЗАКРЫТИЕ onCreate
     }
+
+
 
     //ЛИСТВЬЮ ЗАПОЛНЕНИЕ
     private void lvRecord() {
         //получаем список записей
         c = db.query("record", null, null, null, null, null, "dateVisit"); // делаем запрос всех данных из таблицы mytable, получаем Cursor
         // ставим позицию курсора на первую строку выборки  // если в выборке нет строк, вернется false
-        if (c.moveToFirst()) { // определяем номера столбцов по имени в выборке
-            int nameColIndex = c.getColumnIndex("name");
-            int  dateColIndex = c.getColumnIndex("dateVisit");
-            int  idRecColIndex = c.getColumnIndex("idRecord");
-
-            //  int phoneColIndex = c.getColumnIndex("cost");
+        if (c.moveToFirst()) {
             do {
+                // определяем номера столбцов по имени в выборке и достаем строку
+                String idRecord = c.getString(c.getColumnIndex("idRecord"));
+                String name = c.getString(c.getColumnIndex("name"));
+                Long date = c.getLong(c.getColumnIndex("dateVisit"));
+                String idClient = c.getString(c.getColumnIndex("idClient"));
                 map = new HashMap<>();
-                map.put("Id", c.getString(nameColIndex));
-                map.put("IdRec", c.getString(idRecColIndex));
-
-               // map.put("Date", c.getString(dateColIndex));
-                String dateMS = DateUtils.formatDateTime(this, c.getLong(dateColIndex), DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE |
+                map.put("name", name);
+                map.put("idClient", idClient);
+                map.put("idRecord", idRecord);
+                String dateMS = DateUtils.formatDateTime(this, date, DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE |
                         DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY);
+                //дата
                 map.put("Date", dateMS);
                     ///////запись даты событий для горизонтального колендаря
                 Calendar calendarDate = Calendar.getInstance(); //--------дата, для горизонтального календаря
-                calendarDate.setTimeInMillis(c.getLong(dateColIndex));
+                calendarDate.setTimeInMillis(date);
 //                System.out.println("КАЛЕНДАРЬ -------- дата для ГК " + calendarDate.getTimeInMillis());
                 listEvents.add(calendarDate);
 
                         ///проверка даты, чтобы она была на текущий день
-                if (c.getLong(dateColIndex) > minDateToList && c.getLong(dateColIndex) < minDateToList + 1000 * 60 * 60 * 24) {
+                if (date > minDateToList && date < minDateToList + 1000 * 60 * 60 * 24) {
                     arrayList.add(map);
                 }
                 // переход на следующую строку  // а если следующей нет (текущая - последняя), то false - выходим из цикла
@@ -306,16 +296,17 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 //        db = dbHelper.getWritableDatabase();
 
         SimpleAdapter adapter = new SimpleAdapter(this, arrayList,
-                R.layout.my_item, new String[]{"Id","Date"},
-                new int[]{R.id.text1, R.id.text2});
+                R.layout.my_item, new String[]{"name","Date","idClient"},
+                new int[]{R.id.text1, R.id.text2, R.id.text3});
         lvRecord.setAdapter(adapter);
 
         ///получаем список клиентов
         c = db.query("client", null, null, null, null, null, null);
         if (c.moveToFirst()) {
-            int name = c.getColumnIndex("name");
+         //  int name = c.getColumnIndex("name");
             do {
-                listClietn.add(c.getString(name));
+                String name = c.getString(c.getColumnIndex("name"));
+                listClient.add(name);
             } while (c.moveToNext());
         } else
             Log.d("ошибка", "0 rows");
@@ -359,7 +350,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         //если не пустое имя
         if (!man.equals("")) {
         //проверка есть ли в базе этот человек
-            for (String ctlst : listClietn) {
+            for (String ctlst : listClient) {
                 if (man.equals(ctlst)) {
                     a = true;
                 }
@@ -367,14 +358,10 @@ public class RecordActivity extends Activity implements View.OnClickListener {
         //если такого клиента нет в базе а = false
             if (!a) {
                 context = RecordActivity.this;
-                String title = "Клиента " + man + " нет в базе!";
-                String message = "Добавить?";
-                String button1String = "Добавить в базу";
-                String button2String = "Отмена";
                 ad = new AlertDialog.Builder(context);
-                ad.setTitle(title);  // заголовок
-                ad.setMessage(message); // сообщение
-                ad.setPositiveButton(button1String, new DialogInterface.OnClickListener() {
+                ad.setTitle("Клиента " + man + " нет в базе!");  // заголовок
+                ad.setMessage("Добавить?"); // сообщение
+                ad.setPositiveButton("Добавить в базу", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int arg1) {
                         datePickerDialog = new DatePickerDialog(context, d,
                                 calendarNow.get(Calendar.YEAR),
@@ -403,7 +390,7 @@ public class RecordActivity extends Activity implements View.OnClickListener {
 
                     }
                 });
-                ad.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
+                ad.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int arg1) {
                         //отмена добавления
                     }
@@ -447,7 +434,13 @@ public class RecordActivity extends Activity implements View.OnClickListener {
             public void onDismiss(DialogInterface dialog) {
 //!!!СОХРАНЕНИЕ В БАЗЕ
                 ContentValues cv = new ContentValues();
-                String name = autoCompleteTextView2.getText().toString();
+                String nameClient = autoCompleteTextView2.getText().toString();
+                int idClietn;
+                Cursor c = null;
+                c = db.rawQuery("select idClient from client where name='" + nameClient +"'", null );
+                c.moveToFirst();
+                String idClient = c.getString(c.getColumnIndex("idClient"));
+
                 String date = currentDateTime.getText().toString();
                 long dateMS = dateAndTime.getTimeInMillis();
 //                String more = etMore.getText().toString();
@@ -456,19 +449,16 @@ public class RecordActivity extends Activity implements View.OnClickListener {
                 {     // For each hashmap, iterate over it
                     for (Map.Entry<String, String> entry  : hashMap.entrySet())
                     { // Do something with your entrySet, for example get the key.
-                        String sListName = entry.getValue();
-                      //  String sdateMS = DateUtils.formatDateTime(this, entry., DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE |
-                       //         DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY);
-//                        System.out.println("выбор времени =============" +sListName);
-//                        System.out.println("ВРЕМЯ ДЛЯ СРАВНЕНИЯ =======" +date);
+                        String sListName = entry.getValue() + "";
                         if (sListName.equals(date)) {
                             userAlreadyExists = 1;
                         }
                     }
                 }
 if (userAlreadyExists == 0) {
-    cv.put("name", name);
+    cv.put("name", nameClient);
     cv.put("dateVisit", dateMS);
+    cv.put("idClient", idClient);
     //               System.out.println(dateMS);
 //                cv.put("more", more);
     db.insert("record", null, cv);

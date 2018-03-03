@@ -81,6 +81,7 @@ lv1();
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
                 final String idClient = arrayList.get(position).get("idClient");
+                final String nameClient = arrayList.get(position).get("Name");
                 Button btnClientDel = (Button) dialog.findViewById(R.id.btnClientDel);
                 Button btnClientHistory = (Button) dialog.findViewById(R.id.btnClientHistory);
                 TextView tvTest = (TextView) dialog.findViewById(R.id.tvTest);
@@ -106,6 +107,7 @@ lv1();
                         Intent intent = new Intent(view.getContext(), HistoryActivity.class);
                         intent.addFlags(65536);
                         intent.putExtra("idClient", idClient);
+                        intent.putExtra("nameClient", nameClient);
                         startActivity(intent);
                     }
                 });
@@ -124,7 +126,6 @@ lv1();
 
 ///Построение списка клиентов
     void lv1 () {
-        //       adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, android.R.id.text1, listItems);
         SimpleAdapter  adapter = new SimpleAdapter(this, arrayList,
                 R.layout.my_item, new String[]{"Name","Phone"},
                 new int[]{R.id.text1, R.id.text2});
@@ -136,15 +137,14 @@ lv1();
         Cursor c = db.query("client", null, null, null, null, null, null); // делаем запрос всех данных из таблицы mytable, получаем Cursor
         // ставим позицию курсора на первую строку выборки  // если в выборке нет строк, вернется false
         if (c.moveToFirst()) { // определяем номера столбцов по имени в выборке
-            int idColIndex = c.getColumnIndex("idClient");
-            int nameColIndex = c.getColumnIndex("name");
-            int phoneColIndex = c.getColumnIndex("phone");
             do {
+                String idClient = c.getString(c.getColumnIndex("idClient"));
+                String name = c.getString(c.getColumnIndex("name"));
+                String phone = c.getString(c.getColumnIndex("phone"));
                 map = new HashMap<>();
-                map.put("Name", c.getString(nameColIndex));
-                map.put("Phone", c.getString(phoneColIndex));
-                map.put("idClient", c.getString(idColIndex));
-
+                map.put("idClient", idClient);
+                map.put("Name", name);
+                map.put("Phone", phone);
                 arrayList.add(map);
                 // переход на следующую строку  // а если следующей нет (текущая - последняя), то false - выходим из цикла
             } while (c.moveToNext());
@@ -206,9 +206,6 @@ lv1();
                }
            }
        }
-
-
-
        if (name.equals("") || phone.equals("")) {
            Toast toast = Toast.makeText(getApplicationContext(),
                    "Заполните все поля!!", Toast.LENGTH_SHORT);
